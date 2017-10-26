@@ -8,11 +8,11 @@ import org.springframework.core.env.Environment;
 @Configuration
 public class AppConfiguration {
 
-  @Autowired
-  private Environment environment;
-
-  public int httpPort() {
-    return environment.getProperty("http.port", Integer.class, 8080);
-  }
+//  @Autowired
+//  private Environment environment;
+//
+//  public int httpPort() {
+//    return environment.getProperty("http.port", Integer.class, 8080);
+//  }
 
 }

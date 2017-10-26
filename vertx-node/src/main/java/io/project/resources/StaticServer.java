@@ -46,12 +46,13 @@ public class StaticServer extends AbstractVerticle {
             }
             event.complete(true);
         }));
-        router.route().handler(StaticHandler.create());
-        vertx.setPeriodic(1000, t -> vertx.eventBus().publish("news-feed", "news from the server!"));
+        
+        
 
         setUpInitialData();
         //rest
         router.route().handler(BodyHandler.create());
+        
         router.route().handler(CorsHandler.create("*")
                 .allowedMethod(HttpMethod.GET)
                 .allowedHeader("Content-Type"));
@@ -67,8 +68,10 @@ public class StaticServer extends AbstractVerticle {
         router.get("/api/health").handler(ctx -> {
             ctx.response().end("I'm ok");
         });
+        
         router.route("/*").handler(StaticHandler.create());
 
+        vertx.setPeriodic(1000, t -> vertx.eventBus().publish("news-feed", "news from the server!"));
         vertx.createHttpServer().requestHandler(router::accept).listen(configuration.httpPort());
 
     }

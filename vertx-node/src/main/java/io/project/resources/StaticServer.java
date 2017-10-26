@@ -57,16 +57,16 @@ public class StaticServer extends AbstractVerticle {
                 .allowedMethod(HttpMethod.GET)
                 .allowedHeader("Content-Type"));
 
-        router.get("/products/:productID").handler(this::handleGetProduct);
+        router.get("/api/products/:productID").handler(this::handleGetProduct);
 
-        router.put("/products/:productID").handler(this::handleAddProduct);
+        router.put("/api/products/:productID").handler(this::handleAddProduct);
 
-        router.get("/products").handler(this::handleListProducts);
+        router.get("/api/products").handler(this::handleListProducts);
 
         router.get("/api/flights").handler(this::handleFlights);
 
         router.get("/api/health").handler(ctx -> {
-            ctx.response().end("I'm ok");
+            ctx.response().end("I'm ok, I hope you are also ok");
         });
         
         router.route("/*").handler(StaticHandler.create());

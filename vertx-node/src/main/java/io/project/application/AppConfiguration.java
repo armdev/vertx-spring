@@ -8,7 +8,7 @@ import org.springframework.core.env.Environment;
 public class AppConfiguration {
 
   @Autowired
-  Environment environment;
+  private Environment environment;
 
   public int httpPort() {
     return environment.getProperty("http.port", Integer.class, 8080);

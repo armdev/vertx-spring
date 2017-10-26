@@ -1,0 +1,36 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Operations that can be invoked in the aloha microservices",
+        "version": "1.0.0",
+        "title": "Microservices REST API",
+        "contact": {
+            "name": "developer@dev.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        }
+    },
+    "basePath": "/api",
+    "schemes": ["http"],
+    "paths": {
+        "/health": {
+            "get": {
+                "summary": "Used to verify the health of the service",
+                "description": "",
+                "operationId": "health",
+                "produces": ["text/plain"],
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

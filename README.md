@@ -5,7 +5,11 @@ vertx-spring
 
 Access urls
 
+Swagger works !!!
+
 http://192.168.99.100:8080/
+
+http://192.168.99.100:8080/socket.html
 
 http://192.168.99.100:8080/api/health
 

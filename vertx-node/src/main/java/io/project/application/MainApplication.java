@@ -14,8 +14,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @SpringBootApplication
 @Configuration
 @EnableJpaRepositories("io.project.repositories")
-//@ComponentScan(basePackages = {"io.project"}, excludeFilters = {
-//    @ComponentScan.Filter(Configuration.class)})
 @ComponentScan(basePackages = { "io.project" })
 @EntityScan("io.project.model")
 public class MainApplication {
@@ -29,9 +27,6 @@ public class MainApplication {
 
     @PostConstruct
     public void deployVerticle() {
-//        final Vertx vertx = Vertx.vertx();
-//        vertx.deployVerticle(staticServer);
-        
          Vertx.vertx().deployVerticle(staticServer);
 
     }

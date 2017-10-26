@@ -10,7 +10,7 @@ spring:
         ddl-auto: none
         dialect:  org.hibernate.dialect.MySQLDialect
   datasource:
-        url: jdbc:mysql://localhost:3306/airlines?zeroDateTimeBehavior=convertToNull&amp;useUnicode=yes&amp;characterEncoding=UTF-8&amp;autoReconnect=true
-        username: root
+        url: jdbc:mysql://192.168.99.100:3306/airlines?zeroDateTimeBehavior=convertToNull&amp;useUnicode=yes&amp;characterEncoding=UTF-8&amp;autoReconnect=true
+        username: admin
         password: root
         driver-class-name: com.mysql.jdbc.Driver

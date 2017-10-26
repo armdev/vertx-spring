@@ -1,5 +1,6 @@
 package io.project.resources;
 
+import io.project.application.AppConfiguration;
 import io.project.repositories.FlightRepository;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpMethod;
@@ -7,12 +8,12 @@ import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.bridge.BridgeEventType;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.StaticHandler;
-import io.vertx.ext.web.handler.sockjs.BridgeEventType;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.PermittedOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
@@ -28,6 +29,9 @@ public class StaticServer extends AbstractVerticle {
     private Map<String, JsonObject> products = new HashMap<>();
 
     @Autowired
+    AppConfiguration configuration;
+
+    @Autowired
     private FlightRepository flightRepository;
 
     @Override
@@ -35,6 +39,7 @@ public class StaticServer extends AbstractVerticle {
         Router router = Router.router(vertx);
         ///event bus
         BridgeOptions options = new BridgeOptions().addOutboundPermitted(new PermittedOptions().setAddress("news-feed"));
+
         router.route("/eventbus/*").handler(SockJSHandler.create(vertx).bridge(options, event -> {
             if (event.type() == BridgeEventType.SOCKET_CREATED) {
                 System.out.println("A socket was created");
@@ -50,19 +55,21 @@ public class StaticServer extends AbstractVerticle {
         router.route().handler(CorsHandler.create("*")
                 .allowedMethod(HttpMethod.GET)
                 .allowedHeader("Content-Type"));
+
         router.get("/products/:productID").handler(this::handleGetProduct);
+
         router.put("/products/:productID").handler(this::handleAddProduct);
+
         router.get("/products").handler(this::handleListProducts);
+
         router.get("/api/flights").handler(this::handleFlights);
+
         router.get("/api/health").handler(ctx -> {
             ctx.response().end("I'm ok");
         });
         router.route("/*").handler(StaticHandler.create());
 
-        //server
-        vertx.createHttpServer()
-                .requestHandler(router::accept)
-                .listen(config().getInteger("http.port", 8080));
+        vertx.createHttpServer().requestHandler(router::accept).listen(configuration.httpPort());
 
     }
 
@@ -115,7 +122,7 @@ public class StaticServer extends AbstractVerticle {
         HttpServerResponse response = routingContext.response();
         response.putHeader("content-type", "application/json; charset=utf-8")
                 .end(Json.encodePrettily(flightRepository.findAll()));
-        
+
         long endTime = System.currentTimeMillis();
         long totalTime = endTime - startTime;
         System.out.println("Total time: " + totalTime + " ms or  ");

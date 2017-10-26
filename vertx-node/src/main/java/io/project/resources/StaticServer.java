@@ -1,6 +1,5 @@
 package io.project.resources;
 
-import io.project.application.AppConfiguration;
 import io.project.repositories.FlightRepository;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpMethod;
@@ -8,12 +7,12 @@ import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.bridge.BridgeEventType;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.StaticHandler;
+import io.vertx.ext.web.handler.sockjs.BridgeEventType;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.PermittedOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
@@ -27,9 +26,6 @@ import org.springframework.stereotype.Component;
 public class StaticServer extends AbstractVerticle {
 
     private Map<String, JsonObject> products = new HashMap<>();
-
-    @Autowired
-    private AppConfiguration configuration;
 
     @Autowired
     private FlightRepository flightRepository;
@@ -62,12 +58,11 @@ public class StaticServer extends AbstractVerticle {
             ctx.response().end("I'm ok");
         });
         router.route("/*").handler(StaticHandler.create());
-        
+
         //server
-          vertx.createHttpServer()
-            .requestHandler(router::accept)
-            .listen(config().getInteger("http.port", 8080));
-        //vertx.createHttpServer().requestHandler(router::accept).listen(configuration.httpPort());
+        vertx.createHttpServer()
+                .requestHandler(router::accept)
+                .listen(config().getInteger("http.port", 8080));
 
     }
 
@@ -120,6 +115,7 @@ public class StaticServer extends AbstractVerticle {
         HttpServerResponse response = routingContext.response();
         response.putHeader("content-type", "application/json; charset=utf-8")
                 .end(Json.encodePrettily(flightRepository.findAll()));
+        
         long endTime = System.currentTimeMillis();
         long totalTime = endTime - startTime;
         System.out.println("Total time: " + totalTime + " ms or  ");

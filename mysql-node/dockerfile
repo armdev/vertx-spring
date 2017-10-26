@@ -1,0 +1,3 @@
+FROM mysql
+MAINTAINER Armen Arzumanyan
+ADD db/airlines.sql /docker-entrypoint-initdb.d

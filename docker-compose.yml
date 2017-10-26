@@ -1,0 +1,22 @@
+﻿version: '2'
+services:
+  mysql-node:
+    image: mysql-node
+    build: ./mysql-node
+    container_name: "mysql-node"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=root
+      - MYSQL_DATABASE=airlines
+    ports:
+      - 3306:3306      
+  vertx-node:
+   image: vertx-node
+   build: ./vertx-node
+   container_name: "vertx-node"
+   links:                      
+     - mysql-node
+   ports:
+     - "8080:8080"            
+ 

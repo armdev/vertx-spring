@@ -1,12 +1,5 @@
 server:
-  port: 9090
-  
-undertow:
-   buffer-size: 1073741824
-   direct-buffers: 1073741824
-   io-threads: 100000
-   worker-threads: 100000
-   max-http-post-size: 1073741824    
+  port: 8080
 
 management:
   security:  
@@ -27,23 +20,9 @@ spring:
         url: jdbc:mysql://192.168.99.100:3306/airlines?zeroDateTimeBehavior=convertToNull&amp;useUnicode=yes&amp;characterEncoding=UTF-8&amp;autoReconnect=true
         username: admin
         password: root
-        driver-class-name: com.mysql.jdbc.Driver      
-        
- 
-#  zipkin:
-#    baseUrl: http://192.168.99.100:9411
-#    enabled: true
-  sleuth:
-    enabled: true
-    sampler:
-    percentage: 1      
-#  
-#  boot:
-#    admin:
-#        username: admin
-#        password: admin123
-#        url: http://192.168.99.100:1111 
-#        
+        driver-class-name: com.mysql.jdbc.Driver        
+
+    
 hystrix:
   command:
     RemoteMessageClientCommand:
@@ -56,8 +35,3 @@ hystrix:
         isolation:
           thread:
             timeoutInMilliseconds: 5000        
-      
-#eureka:
-#  client:
-#    serviceUrl:
-#      defaultZone: ${EUREKA_URI:http://192.168.99.100:8761/eureka}

@@ -10,13 +10,13 @@ spring:
         ddl-auto: none
         dialect:  org.hibernate.dialect.MySQLDialect
   datasource:
-        url: jdbc:mysql://192.168.99.100:3306/airlines?zeroDateTimeBehavior=convertToNull&amp;useUnicode=yes&amp;characterEncoding=UTF-8&amp;autoReconnect=true
-        username: admin
+        url: jdbc:mysql://127.0.0.1:3306/airlines?zeroDateTimeBehavior=convertToNull&amp;useUnicode=yes&amp;characterEncoding=UTF-8&amp;autoReconnect=true
+        username: root
         password: root
         driver-class-name: com.mysql.jdbc.Driver
         
 eureka:
   client:
     serviceUrl:
-      defaultZone: ${EUREKA_URI:http://192.168.99.100:8761/eureka}
+      defaultZone: ${EUREKA_URI:http://127.0.0.1:8761/eureka}
         

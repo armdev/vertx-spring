@@ -1,0 +1,25 @@
+server:
+  port: 8761
+  
+management:
+  security:  
+    enabled: false 
+
+spring:
+  application:
+    name: eurekanode
+
+eureka:
+  instance:
+    hostname: localhost
+    metadataMap:
+      instanceId: ${spring.application.name}
+    preferIpAddress: true
+    leaseRenewalIntervalInSeconds: 5
+    lease-expiration-duration-in-seconds: 5
+  client:
+    registerWithEureka: false  
+    fetchRegistry: true
+    registryFetchIntervalSeconds: 5
+    serviceUrl:
+      defaultZone: http://192.168.99.100:8761/eureka/

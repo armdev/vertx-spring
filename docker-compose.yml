@@ -1,5 +1,11 @@
 ﻿version: '2'
 services:
+  eureka-node:
+    image: eureka-node
+    build: ./eureka-node
+    container_name: "eureka-node"      
+    ports:
+      - "8761:8761"      
   mysql-node:
     image: mysql-node
     build: ./mysql-node
@@ -15,8 +21,9 @@ services:
    image: vertx-node
    build: ./vertx-node
    container_name: "vertx-node"
-   links:                      
-     - mysql-node
+   links:        
+     - eureka-node  
+     - mysql-node     
    ports:
      - "8080:8080"            
  

@@ -5,25 +5,37 @@ services:
     build: ./eureka-node
     container_name: "eureka-node"      
     ports:
-      - "8761:8761"      
-  mysql-node:
-    image: mysql-node
-    build: ./mysql-node
-    container_name: "mysql-node"
-    environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_USER=admin
-      - MYSQL_PASSWORD=root
-      - MYSQL_DATABASE=airlines
+      - "8761:8761"     
+    networks:
+      - overlay
+  postgres-node:
+    image: postgres-node
+    build: ./postgres-node
+    container_name: "postgres-node" 
     ports:
-      - 3306:3306      
+     - "5432:5432"  
+    networks:
+     - overlay 
+    #volumes:
+    #  - "db-data:/var/lib/postgresql/data/pgdata"
+    environment:
+     # PGDATA: "/var/lib/postgresql/data/pgdata"
+      POSTGRES_USER: "armdev"
+      POSTGRES_PASSWORD: "armdev"
+      POSTGRES_DB: "socnet"     
+ 
   vertx-node:
-   image: vertx-node
-   build: ./vertx-node
-   container_name: "vertx-node"
-   links:        
-     - eureka-node  
-     - mysql-node     
-   ports:
-     - "8080:8080"            
+    image: vertx-node
+    build: ./vertx-node
+    container_name: "vertx-node"
+    links:        
+      - eureka-node  
+      - postgres-node     
+    ports:
+      - "8080:8080"
+    networks:
+      - overlay
+
+networks:
+  overlay:      
  

@@ -1,0 +1,3 @@
+FROM postgres
+MAINTAINER Armen Arzumanyan
+##ADD db/dump.tar /docker-entrypoint-initdb.d

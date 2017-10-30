@@ -9,7 +9,7 @@ services:
     networks:
      - vertx-network     
     environment:     
-      POSTGRES_USER: "socnet"
+      POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "socnet"
       POSTGRES_DB: "socnet"      
   vertx-node:

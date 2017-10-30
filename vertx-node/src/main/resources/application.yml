@@ -10,7 +10,7 @@ spring:
         ddl-auto: none        
         dialect:  org.hibernate.dialect.PostgreSQLDialect
   datasource:        
-        url: jdbc:postgresql://192.168.99.100:5432/socnet       
+        url: jdbc:postgresql://postgres-node:5432/socnet       
         username: postgres
         password: socnet        
         driver-class-name: org.postgresql.Driver

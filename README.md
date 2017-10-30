@@ -42,22 +42,24 @@ docker ps -a
 
 docker exec -i -u postgres vertx_postgres-node.1.zcx53rhuv9h88txrhdgo4ymcp pg_restore -C -d socnet < ./postgres-node/db/dump.backup
 
+## test
+
 http://192.168.99.100:8080/api/users
 
 docker service ls
 
+#scale
 docker service scale vertx_vertx-node=2
 
 docker service scale vertx_postgres-node=2
 
 docker service ls
 
+## remove all services
+docker stack rm vertx
+#
+docker service ls
 
-	 DOCKER COMPOSE V2	                                               DOCKER COMPOSE V3
- Start services	docker-compose up -d	                                docker stack deploy --compose-file=docker-compose.yml <stack-name> 
- Scale service	docker-compose scale <service>=<replicas>	             docker service scale <service>=<replicas>
- Shutdown	docker-compose down	                                          docker stack rm <stack-name>
- Multi-host	No	                                                                     Yes
 
 
 

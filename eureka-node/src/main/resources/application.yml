@@ -22,4 +22,4 @@ eureka:
     fetchRegistry: true
     registryFetchIntervalSeconds: 5
     serviceUrl:
-      defaultZone: http://192.168.99.100:8761/eureka/
+      defaultZone: http://eureka-node:8761/eureka/

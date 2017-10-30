@@ -15,8 +15,8 @@ spring:
         password: socnet        
         driver-class-name: org.postgresql.Driver
         
-#eureka:
-#  client:
-#    serviceUrl:
-#      defaultZone: ${EUREKA_URI:http://192.168.99.100:8761/eureka}
-#        
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_URI:http://eureka-node:8761/eureka}
+        

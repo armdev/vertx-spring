@@ -6,7 +6,7 @@
     <version>1.0</version>
     <packaging>pom</packaging>
     <modules>        	    
-        <!--<module>eureka-node</module>-->
+        <module>eureka-node</module>
         <module>vertx-node</module>                
     </modules>
     <properties>

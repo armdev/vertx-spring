@@ -56,6 +56,7 @@ public class StaticServer extends AbstractVerticle {
         router.route().handler(CorsHandler.create("*")
                 .allowedMethod(HttpMethod.GET)
                 .allowedHeader("Content-Type"));
+        
 
         router.get("/api/products/:productID").handler(this::handleGetProduct);
 
@@ -72,6 +73,7 @@ public class StaticServer extends AbstractVerticle {
         router.route("/*").handler(StaticHandler.create());
 
         vertx.setPeriodic(1000, t -> vertx.eventBus().publish("news-feed", "news from the server!"));
+        
         vertx.createHttpServer().requestHandler(router::accept).listen(configuration.httpPort());
 
     }

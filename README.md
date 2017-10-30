@@ -75,8 +75,15 @@ docker ps -a
 docker service ls
 
 ## restore database dump
+docker ps -a
 
 docker exec -i -u postgres vertx_postgres-node.1.zcx53rhuv9h88txrhdgo4ymcp pg_restore -C -d socnet < ./postgres-node/db/dump.backup
+
+docker ps -a
+
+docker exec -i -u postgres vertx_postgres-node.1.i2idnfywdz07vb7vgnwf9ugqh pg_restore -C -d socnet < ./postgres-node/db/dump.backup
+
+docker exec -i -u postgres postgres-node pg_restore -C -d socnet < ./postgres-node/db/dump.backup
 
 
 

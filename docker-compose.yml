@@ -1,4 +1,4 @@
-version: '3.1'
+version: '3'
 services:
   eureka-node:
     image: eureka-node
@@ -28,7 +28,7 @@ services:
       - postgres-node
       - eureka-node
     ports:
-      - '8080:8080'
+      - '8585:8585'
     networks:
       - vertx-network
 networks:

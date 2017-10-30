@@ -1,21 +1,53 @@
 # vertx-spring
 vertx-spring
 
+
 1. ./run.sh
+
+Stop all containers:
+
+```shell
+docker stop $(docker ps -a -q)
+```
+
+Remove all containers :
+
+```shell
+docker rm $(docker ps -a -q)
+```
+
+Remove all images
+
+```shell
+docker rmi $(docker images -q)
+```
+
+Remove all images which has name none
+```shell
+docker rmi $(docker images | grep "^<none>" | awk "{print $3}")
+```
 
 Access urls
 
 Swagger works !!!
 
-http://192.168.99.100:8080/
+http://192.168.99.100:8585/
 
-http://192.168.99.100:8080/socket.html
+http://192.168.99.100:8585/socket.html
 
-http://192.168.99.100:8080/api/health
+http://192.168.99.100:8585/api/health
 
-http://192.168.99.100:8080/api/users
+http://192.168.99.100:8585/api/users
 
-http://192.168.99.100:8080/products
+http://192.168.99.100:8585/products
+
+## set active docker-machine
+eval $(docker-machine env default)
+## docker swarm init
+docker swarm init --advertise-addr=192.168.99.100
+
+#run in docker compose 3
+docker stack deploy --compose-file=docker-compose.yml vertx
 
 For testing used Docker Toolbox
 
@@ -38,9 +70,13 @@ docker stack deploy --compose-file=docker-compose.yml vertx
 
 docker ps -a
 
+docker service ls
+
 ## restore database dump
 
 docker exec -i -u postgres vertx_postgres-node.1.zcx53rhuv9h88txrhdgo4ymcp pg_restore -C -d socnet < ./postgres-node/db/dump.backup
+
+
 
 ## test
 

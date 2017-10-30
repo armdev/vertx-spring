@@ -11,7 +11,7 @@ public class AppConfiguration {
   private Environment environment;
 
   public int httpPort() {
-    return environment.getProperty("http.port", Integer.class, 8080);
+    return environment.getProperty("http.port", Integer.class, 8585);
   }
 
 }

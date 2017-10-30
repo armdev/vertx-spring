@@ -65,6 +65,8 @@ docker exec -i -u postgres postgres-node pg_restore -C -d socnet < ./postgres-no
 ## run and scale
 
 http://blog.arungupta.me/deploy-docker-compose-services-swarm/
+https://docs.docker.com/compose/compose-file/#endpoint_mode
+
 
 docker stack deploy --compose-file=docker-compose.yml vertx
 
@@ -93,9 +95,23 @@ docker service ls
 
 ## remove all services
 docker stack rm vertx
-#
-docker service ls
+## docker service ls
 
+## Create cluster
 
-
-
+```shell
+docker run -d -p 8100:8100 --restart=unless-stopped -e skstkn=compose --name skopos -v /var/run/docker.sock:/var/run/docker.sock opsani/skopos:edge
+```
+## monitoring
+```shell
+docker run \
+  --volume=/:/rootfs:ro \
+  --volume=/var/run:/var/run:rw \
+  --volume=/sys:/sys:ro \
+  --volume=/var/lib/docker/:/var/lib/docker:ro \
+  --volume=/dev/disk/:/dev/disk:ro \
+  --publish=9999:9999 \
+  --detach=true \
+  --name=cadvisor \
+  google/cadvisor:latest
+```

@@ -97,11 +97,17 @@ docker service ls
 docker stack rm vertx
 ## docker service ls
 
-## Create cluster
+## Create cluster from UI
+
+https://opsani.com/skopos/docker-compose-generator/
 
 ```shell
 docker run -d -p 8100:8100 --restart=unless-stopped -e skstkn=compose --name skopos -v /var/run/docker.sock:/var/run/docker.sock opsani/skopos:edge
 ```
+Access 
+
+http://192.168.99.100:8100
+
 ## monitoring
 ```shell
 docker run \

@@ -1,7 +1,6 @@
 package io.project.resources;
 
 import io.project.application.AppConfiguration;
-import io.project.repositories.FlightRepository;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerResponse;
@@ -22,6 +21,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import io.project.repositories.UserRepository;
 
 @Component
 public class StaticServer extends AbstractVerticle {
@@ -32,7 +32,7 @@ public class StaticServer extends AbstractVerticle {
     AppConfiguration configuration;
 
     @Autowired
-    private FlightRepository flightRepository;
+    private UserRepository userRepository;
 
     @Override
     public void start() throws Exception {
@@ -63,7 +63,7 @@ public class StaticServer extends AbstractVerticle {
 
         router.get("/api/products").handler(this::handleListProducts);
 
-        router.get("/api/flights").handler(this::handleFlights);
+        router.get("/api/users").handler(this::handleFlights);
 
         router.get("/api/health").handler(ctx -> {
             ctx.response().end("I'm ok, I hope you are also ok");
@@ -124,7 +124,7 @@ public class StaticServer extends AbstractVerticle {
         long startTime = System.currentTimeMillis();
         HttpServerResponse response = routingContext.response();
         response.putHeader("content-type", "application/json; charset=utf-8")
-                .end(Json.encodePrettily(flightRepository.findAll()));
+                .end(Json.encodePrettily(userRepository.findAll()));
 
         long endTime = System.currentTimeMillis();
         long totalTime = endTime - startTime;

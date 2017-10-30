@@ -15,15 +15,11 @@ services:
     ports:
      - "5432:5432"  
     networks:
-     - overlay 
-    #volumes:
-    #  - "db-data:/var/lib/postgresql/data/pgdata"
-    environment:
-     # PGDATA: "/var/lib/postgresql/data/pgdata"
-      POSTGRES_USER: "armdev"
-      POSTGRES_PASSWORD: "armdev"
-      POSTGRES_DB: "socnet"     
- 
+     - overlay     
+    environment:     
+      POSTGRES_USER: "socnet"
+      POSTGRES_PASSWORD: "socnet"
+      POSTGRES_DB: "socnet"      
   vertx-node:
     image: vertx-node
     build: ./vertx-node

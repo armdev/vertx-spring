@@ -7,15 +7,12 @@ spring:
   jpa:
       database: postgresql
       hibernate:
-        ddl-auto: none
-        ##dialect:  org.hibernate.dialect.MySQLDialect
+        ddl-auto: none        
         dialect:  org.hibernate.dialect.PostgreSQLDialect
-  datasource:
-        ##url: jdbc:mysql://mysql-node:3306/airlines?zeroDateTimeBehavior=convertToNull&amp;useUnicode=yes&amp;characterEncoding=UTF-8&amp;autoReconnect=true
-        url: jdbc:mysql://192.168.99.100:5432/socnet
-        username: armdev
-        password: armdev
-        ##driver-class-name: com.mysql.jdbc.Driver
+  datasource:        
+        url: jdbc:postgresql://postgres-node:5432/socnet
+        username: socnet
+        password: socnet        
         driver-class-name: org.postgresql.Driver
         
 eureka:

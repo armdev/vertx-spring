@@ -1,13 +1,5 @@
-﻿version: '2'
+﻿version: "3.1"
 services:
-  eureka-node:
-    image: eureka-node
-    build: ./eureka-node
-    container_name: "eureka-node"      
-    ports:
-      - "8761:8761"     
-    networks:
-      - overlay
   postgres-node:
     image: postgres-node
     build: ./postgres-node
@@ -15,7 +7,7 @@ services:
     ports:
      - "5432:5432"  
     networks:
-     - overlay     
+     - vertx-network     
     environment:     
       POSTGRES_USER: "socnet"
       POSTGRES_PASSWORD: "socnet"
@@ -24,14 +16,12 @@ services:
     image: vertx-node
     build: ./vertx-node
     container_name: "vertx-node"
-    links:        
-      - eureka-node  
+    links:   
       - postgres-node     
     ports:
       - "8080:8080"
     networks:
-      - overlay
-
+      - vertx-network
 networks:
-  overlay:      
- 
+  vertx-network:
+    driver: overlay

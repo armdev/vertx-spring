@@ -3,7 +3,6 @@
 set -e
 
 echo "Build the project and docker images"
-echo "Clean and install all maven projects"
 mvn clean package -U -Dmaven.test.skip=true
 export DOCKER_IP=$(docker-machine ip $(docker-machine active))
 echo "DOCKER_IP is " 

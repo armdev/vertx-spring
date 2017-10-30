@@ -29,17 +29,17 @@ public class StaticServer extends AbstractVerticle {
     private Map<String, JsonObject> products = new HashMap<>();
 
     @Autowired
-    AppConfiguration configuration;
+    private AppConfiguration configuration;
 
     @Autowired
     private UserRepository userRepository;
 
     @Override
     public void start() throws Exception {
+        
         Router router = Router.router(vertx);
         ///event bus
         BridgeOptions options = new BridgeOptions().addOutboundPermitted(new PermittedOptions().setAddress("news-feed"));
-
         router.route("/eventbus/*").handler(SockJSHandler.create(vertx).bridge(options, event -> {
             if (event.type() == BridgeEventType.SOCKET_CREATED) {
                 System.out.println("A socket was created");
@@ -72,7 +72,9 @@ public class StaticServer extends AbstractVerticle {
         
         router.route("/*").handler(StaticHandler.create());
 
-        vertx.setPeriodic(1000, t -> vertx.eventBus().publish("news-feed", "news from the server!"));
+        
+        vertx.setPeriodic(2000, t -> vertx.eventBus().publish("news-feed", System.currentTimeMillis()));
+        System.out.println("Push new message");
         
         vertx.createHttpServer().requestHandler(router::accept).listen(configuration.httpPort());
 

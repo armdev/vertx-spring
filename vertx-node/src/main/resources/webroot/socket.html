@@ -19,7 +19,7 @@
         <div id="status" class="news"></div>
 
         <script>
-            var eb = new EventBus("http://localhost:8080/eventbus");
+            var eb = new EventBus("http://192.168.99.100:8080/eventbus");
             eb.onopen = function () {
                 eb.registerHandler("news-feed", function (err, msg) {
                     var str = "<code>" + msg.body + "</code><br>";

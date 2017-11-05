@@ -22,11 +22,17 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import io.project.repositories.UserRepository;
+import io.vertx.core.Future;
+import io.vertx.core.http.HttpServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Component
 public class StaticServer extends AbstractVerticle {
 
     private Map<String, JsonObject> products = new HashMap<>();
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(StaticServer.class);
 
     @Autowired
     private AppConfiguration configuration;
@@ -35,28 +41,32 @@ public class StaticServer extends AbstractVerticle {
     private UserRepository userRepository;
 
     @Override
-    public void start() throws Exception {
-        
+    public void start(Future<Void> startFuture) throws Exception {
+        Future<Void> steps = startHttpServer();
+        steps.setHandler(startFuture.completer());
+    }
+
+    private Future<Void> startHttpServer() throws Exception {
+        Future<Void> future = Future.future();
+        HttpServer server = vertx.createHttpServer();   // <1>
+
         Router router = Router.router(vertx);
         ///event bus
         BridgeOptions options = new BridgeOptions().addOutboundPermitted(new PermittedOptions().setAddress("news-feed"));
         router.route("/eventbus/*").handler(SockJSHandler.create(vertx).bridge(options, event -> {
             if (event.type() == BridgeEventType.SOCKET_CREATED) {
-                System.out.println("A socket was created");
+                LOGGER.info("A socket was created");
             }
             event.complete(true);
         }));
-        
-        
 
         setUpInitialData();
         //rest
         router.route().handler(BodyHandler.create());
-        
+
         router.route().handler(CorsHandler.create("*")
                 .allowedMethod(HttpMethod.GET)
                 .allowedHeader("Content-Type"));
-        
 
         router.get("/api/products/:productID").handler(this::handleGetProduct);
 
@@ -69,14 +79,26 @@ public class StaticServer extends AbstractVerticle {
         router.get("/api/health").handler(ctx -> {
             ctx.response().end("I'm ok, I hope you are also ok");
         });
-        
+
         router.route("/*").handler(StaticHandler.create());
 
-        
         vertx.setPeriodic(2000, t -> vertx.eventBus().publish("news-feed", System.currentTimeMillis()));
-        System.out.println("Push new message");
-        
-        vertx.createHttpServer().requestHandler(router::accept).listen(configuration.httpPort());
+        LOGGER.info("Push new message");
+
+        // vertx.createHttpServer().requestHandler(router::accept).listen(configuration.httpPort());
+        server
+                .requestHandler(router::accept) // <5>
+                .listen(configuration.httpPort(), ar -> {   // <6>
+                    if (ar.succeeded()) {
+                        LOGGER.info("HTTP server running on port 8080");
+                        future.complete();
+                    } else {
+                        LOGGER.error("Could not start a HTTP server", ar.cause());
+                        future.fail(ar.cause());
+                    }
+                });
+
+        return future;
 
     }
 

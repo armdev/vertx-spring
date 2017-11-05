@@ -39,7 +39,7 @@ http://192.168.99.100:8585/api/health
 
 http://192.168.99.100:8585/api/users
 
-http://192.168.99.100:8585/products
+http://192.168.99.100:8585/api/products
 
 ## set active docker-machine
 eval $(docker-machine env default)

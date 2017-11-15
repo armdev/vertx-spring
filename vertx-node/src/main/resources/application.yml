@@ -1,3 +1,7 @@
+management:
+  security:  
+    enabled: false  
+
 spring:
   application:
     name: vertxnode
@@ -14,6 +18,13 @@ spring:
         username: postgres
         password: socnet        
         driver-class-name: org.postgresql.Driver
+  
+  boot:
+    admin:
+        username: admin
+        password: admin123
+        url: http://admin-node:1111
+                
         
 eureka:
   client:

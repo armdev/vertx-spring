@@ -30,6 +30,7 @@ public class MainApplication {
     @PostConstruct
     public void deployVerticle() {
         Vertx.vertx().deployVerticle(staticServer);
+
     }
 
 }

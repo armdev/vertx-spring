@@ -23,7 +23,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import io.project.repositories.UserRepository;
 import io.vertx.core.Future;
+import io.vertx.core.Vertx;
+import io.vertx.core.VertxOptions;
 import io.vertx.core.http.HttpServer;
+import io.vertx.ext.dropwizard.DropwizardMetricsOptions;
+import io.vertx.ext.dropwizard.MetricsService;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,17 +53,20 @@ public class StaticServer extends AbstractVerticle {
 
     private Future<Void> startHttpServer() throws Exception {
         Future<Void> future = Future.future();
+
+        MetricsService metricsService = MetricsService.create(vertx);
         HttpServer server = vertx.createHttpServer();   // <1>
 
         Router router = Router.router(vertx);
-        ///event bus
-        BridgeOptions options = new BridgeOptions().addOutboundPermitted(new PermittedOptions().setAddress("news-feed"));
-        router.route("/eventbus/*").handler(SockJSHandler.create(vertx).bridge(options, event -> {
-            if (event.type() == BridgeEventType.SOCKET_CREATED) {
-                LOGGER.info("A socket was created");
-            }
-            event.complete(true);
-        }));
+
+        BridgeOptions options = new BridgeOptions().
+                addOutboundPermitted(
+                        new PermittedOptions().
+                                setAddress("metrics")
+                );
+
+        router.route("/eventbus/*").handler(SockJSHandler.create(vertx).bridge(options));
+        router.route().handler(StaticHandler.create());
 
         setUpInitialData();
         //rest
@@ -80,10 +88,22 @@ public class StaticServer extends AbstractVerticle {
             ctx.response().end("I'm ok, I hope you are also ok");
         });
 
-        router.route("/*").handler(StaticHandler.create());
+        vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
+                new DropwizardMetricsOptions().setEnabled(true)
+        ));
 
-        vertx.setPeriodic(2000, t -> vertx.eventBus().publish("news-feed", System.currentTimeMillis()));
-        LOGGER.info("Push new message");
+        vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
+                new DropwizardMetricsOptions().setJmxEnabled(true)
+        ));
+
+        Set<String> metricsNames = metricsService.metricsNames();
+        metricsNames.forEach((metricsName) -> {
+            LOGGER.info("Known metrics name:::::: " + metricsName);
+        });
+
+        router.route("/eventbus/*").handler(SockJSHandler.create(vertx).bridge(options));
+        // Serve the static resources
+        router.route().handler(StaticHandler.create());
 
         // vertx.createHttpServer().requestHandler(router::accept).listen(configuration.httpPort());
         server
@@ -98,6 +118,12 @@ public class StaticServer extends AbstractVerticle {
                     }
                 });
 
+        // Send a metrics events every second
+        vertx.setPeriodic(2000, t -> {
+            JsonObject metrics = metricsService.getMetricsSnapshot(vertx.eventBus());
+            LOGGER.info("Metrics for metrics " + metrics);
+            vertx.eventBus().publish("metrics", metrics);
+        });
         return future;
 
     }

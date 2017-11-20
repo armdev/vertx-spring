@@ -12,8 +12,8 @@
     </style>
 
     <body>
-        <h1>Static web server. Click on some links below</h1>
-        <div class="news">Latest news:</div>
+        <h1>Static web server. Click on some links below###</h1>
+        <div class="news">Latest metrics: </div>
         <br>
 
         <div id="status" class="news"></div>
@@ -21,9 +21,10 @@
         <script>
             var eb = new EventBus("http://192.168.99.100:8585/eventbus");
             eb.onopen = function () {
-                eb.registerHandler("news-feed", function (err, msg) {
-                    var str = "<code>" + msg.body + "</code><br>";
+                eb.registerHandler("metrics", function (err, msg) {
+                    var str = "<code>" + msg + "</code><br>";                    
                     $('#status').prepend(str);
+                    
                 })
             }
         </script>

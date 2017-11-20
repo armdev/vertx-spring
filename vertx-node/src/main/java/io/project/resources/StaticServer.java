@@ -119,7 +119,7 @@ public class StaticServer extends AbstractVerticle {
                 });
 
         // Send a metrics events every second
-        vertx.setPeriodic(2000, t -> {
+        vertx.setPeriodic(3000, t -> {
             JsonObject metrics = metricsService.getMetricsSnapshot(vertx.eventBus());
             LOGGER.info("Metrics for metrics " + metrics);
             vertx.eventBus().publish("metrics", metrics);

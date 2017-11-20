@@ -7,11 +7,11 @@ import org.springframework.core.env.Environment;
 @Configuration
 public class AppConfiguration {
 
-  @Autowired
-  private Environment environment;
+    @Autowired
+    private Environment environment;
 
-  public int httpPort() {
-    return environment.getProperty("http.port", Integer.class, 8585);
-  }
+    public int httpPort() {
+        return environment.getProperty("http.port", Integer.class, 8585);
+    }
 
 }

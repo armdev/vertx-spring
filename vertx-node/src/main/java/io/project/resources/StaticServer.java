@@ -2,32 +2,22 @@ package io.project.resources;
 
 import io.project.application.AppConfiguration;
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.http.HttpMethod;
-import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.json.Json;
-import io.vertx.core.json.JsonArray;
+import io.vertx.core.Vertx;
+import io.vertx.core.VertxOptions;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.bridge.BridgeEventType;
 import io.vertx.ext.web.Router;
-import io.vertx.ext.web.RoutingContext;
-import io.vertx.ext.web.handler.BodyHandler;
-import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.PermittedOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import io.project.repositories.UserRepository;
-import io.vertx.core.Future;
-import io.vertx.core.Vertx;
-import io.vertx.core.VertxOptions;
 import io.vertx.core.http.HttpServer;
 import io.vertx.ext.dropwizard.DropwizardMetricsOptions;
 import io.vertx.ext.dropwizard.MetricsService;
+import java.util.Random;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,51 +32,16 @@ public class StaticServer extends AbstractVerticle {
     @Autowired
     private AppConfiguration configuration;
 
-    @Autowired
-    private UserRepository userRepository;
-
     @Override
-    public void start(Future<Void> startFuture) throws Exception {
-        Future<Void> steps = startHttpServer();
-        steps.setHandler(startFuture.completer());
-    }
+    public void start() {
 
-    private Future<Void> startHttpServer() throws Exception {
-        Future<Void> future = Future.future();
-
-        MetricsService metricsService = MetricsService.create(vertx);
-        HttpServer server = vertx.createHttpServer();   // <1>
-
-        Router router = Router.router(vertx);
+        MetricsService service = MetricsService.create(vertx);
 
         BridgeOptions options = new BridgeOptions().
                 addOutboundPermitted(
                         new PermittedOptions().
                                 setAddress("metrics")
                 );
-
-        router.route("/eventbus/*").handler(SockJSHandler.create(vertx).bridge(options));
-        router.route().handler(StaticHandler.create());
-
-        setUpInitialData();
-        //rest
-        router.route().handler(BodyHandler.create());
-
-        router.route().handler(CorsHandler.create("*")
-                .allowedMethod(HttpMethod.GET)
-                .allowedHeader("Content-Type"));
-
-        router.get("/api/products/:productID").handler(this::handleGetProduct);
-
-        router.put("/api/products/:productID").handler(this::handleAddProduct);
-
-        router.get("/api/products").handler(this::handleListProducts);
-
-        router.get("/api/users").handler(this::handleFlights);
-
-        router.get("/api/health").handler(ctx -> {
-            ctx.response().end("I'm ok, I hope you are also ok");
-        });
 
         vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
                 new DropwizardMetricsOptions().setEnabled(true)
@@ -96,112 +51,39 @@ public class StaticServer extends AbstractVerticle {
                 new DropwizardMetricsOptions().setJmxEnabled(true)
         ));
 
-        Set<String> metricsNames = metricsService.metricsNames();
+        Set<String> metricsNames = service.metricsNames();
         metricsNames.forEach((metricsName) -> {
-            LOGGER.info("Known metrics name:::::: " + metricsName);
+            System.out.println("Known metrics name::::::## " + metricsName);
         });
+
+        Router router = Router.router(vertx);
 
         router.route("/eventbus/*").handler(SockJSHandler.create(vertx).bridge(options));
-        // Serve the static resources
+
         router.route().handler(StaticHandler.create());
 
-        // vertx.createHttpServer().requestHandler(router::accept).listen(configuration.httpPort());
-        server
-                .requestHandler(router::accept) // <5>
-                .listen(configuration.httpPort(), ar -> {   // <6>
-                    if (ar.succeeded()) {
-                        LOGGER.info("HTTP server running on port 8080");
-                        future.complete();
-                    } else {
-                        LOGGER.error("Could not start a HTTP server", ar.cause());
-                        future.fail(ar.cause());
-                    }
-                });
+        HttpServer httpServer = vertx.createHttpServer();
+        httpServer.requestHandler(router::accept).listen(configuration.httpPort());
 
-        // Send a metrics events every second
         vertx.setPeriodic(3000, t -> {
-            JsonObject metrics = metricsService.getMetricsSnapshot(vertx.eventBus());
-            LOGGER.info("Metrics for metrics " + metrics);
-            vertx.eventBus().publish("metrics", metrics);
+           
+            JsonObject metrics = service.getMetricsSnapshot(vertx.eventBus());
+            
+            if (metrics != null) {
+                System.out.println(metrics.toString());
+                vertx.eventBus().publish("metrics", metrics);
+            }else{
+                //System.out.println("metrics is null");
+            }
         });
-        return future;
 
-    }
-
-    private void handleGetProduct(RoutingContext routingContext) {
-        String productID = routingContext.request().getParam("productID");
-        HttpServerResponse response = routingContext.response();
-        if (productID == null) {
-            sendError(400, response);
-        } else {
-            JsonObject product = products.get(productID);
-            if (product == null) {
-                sendError(404, response);
-            } else {
-                response.putHeader("content-type", "application/json").end(product.encodePrettily());
-            }
-        }
-    }
-
-    private void handleAddProduct(RoutingContext routingContext) {
-        String productID = routingContext.request().getParam("productID");
-        HttpServerResponse response = routingContext.response();
-        if (productID == null) {
-            sendError(400, response);
-        } else {
-            JsonObject product = routingContext.getBodyAsJson();
-            if (product == null) {
-                sendError(400, response);
-            } else {
-                products.put(productID, product);
-                response.end();
-            }
-        }
-    }
-
-    private void handleListProducts(RoutingContext routingContext) {
-        System.out.println(System.currentTimeMillis());
-        long startTime = System.currentTimeMillis();
-        JsonArray arr = new JsonArray();
-        products.forEach((k, v) -> arr.add(v));
-        routingContext.response().putHeader("content-type", "application/json").end(arr.encodePrettily());
-        long endTime = System.currentTimeMillis();
-        long totalTime = endTime - startTime;
-        System.out.println("Total time: " + totalTime + " ms or  ");
-        long seconds = TimeUnit.MILLISECONDS.toSeconds(totalTime);
-        //System.out.println("Total time: " + totalTime + " ms or  " + seconds + " seconds");
-    }
-
-    private void handleFlights(RoutingContext routingContext) {
-        long startTime = System.currentTimeMillis();
-        HttpServerResponse response = routingContext.response();
-        response.putHeader("content-type", "application/json; charset=utf-8")
-                .end(Json.encodePrettily(userRepository.findAll()));
-
-        long endTime = System.currentTimeMillis();
-        long totalTime = endTime - startTime;
-        System.out.println("Total time: " + totalTime + " ms or  ");
-    }
-
-    private void sendError(int statusCode, HttpServerResponse response) {
-        response.setStatusCode(statusCode).end();
-    }
-
-    private void setUpInitialData() {
-        addProduct(new JsonObject().put("id", "prod3568").put("name", "Egg Whisk").put("price", 3.99).put("weight", 150));
-        addProduct(new JsonObject().put("id", "prod7340").put("name", "Tea Cosy").put("price", 5.99).put("weight", 100));
-        addProduct(new JsonObject().put("id", "prod8643").put("name", "Spatula").put("price", 1.00).put("weight", 80));
-        addProduct(new JsonObject().put("id", "prod8644").put("name", "Gazan").put("price", 1.00).put("weight", 80));
-        addProduct(new JsonObject().put("id", "prod8645").put("name", "Gazan").put("price", 1.00).put("weight", 80));
-        addProduct(new JsonObject().put("id", "prod8646").put("name", "Gazan").put("price", 1.00).put("weight", 80));
-        addProduct(new JsonObject().put("id", "prod8647").put("name", "Gazan").put("price", 1.00).put("weight", 80));
-        addProduct(new JsonObject().put("id", "prod8648").put("name", "Gazan").put("price", 1.00).put("weight", 80));
-        addProduct(new JsonObject().put("id", "prod8649").put("name", "Gazan").put("price", 1.00).put("weight", 80));
-        addProduct(new JsonObject().put("id", "prod8650").put("name", "Gazan").put("price", 1.00).put("weight", 80));
-
-    }
-
-    private void addProduct(JsonObject product) {
-        products.put(product.getString("id"), product);
+        Random random = new Random();
+        vertx.eventBus().consumer("whatever", msg -> {
+            vertx.setTimer(10 + random.nextInt(50), id -> {
+                // System.out.println("send message hello !!");
+                vertx.eventBus().send("whatever", "hello");
+            });
+        });
+        vertx.eventBus().send("whatever", "hello");
     }
 }

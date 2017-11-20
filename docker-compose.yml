@@ -8,6 +8,16 @@ services:
       - '8761:8761'
     networks:
       - vertx-network
+  admin-node:
+    image: admin-node
+    build: ./admin-node
+    container_name: admin-node
+    links:
+      - eureka-node      
+    ports:
+      - '1111:1111'
+    networks:
+      - vertx-network    
   postgres-node:
     image: postgres-node
     build: ./postgres-node

@@ -21,10 +21,14 @@
         <script>
             var eb = new EventBus("http://192.168.99.100:8585/eventbus");
             eb.onopen = function () {
-                eb.registerHandler("metrics", function (err, msg) {
-                    var str = "<code>" + msg + "</code><br>";                    
-                    $('#status').prepend(str);
-                    
+                eb.registerHandler("metrics", function (err, res) {
+                    var sent = res.body["messages.sent"];
+                    if (sent != null) {
+                        var str = "oneSecondRate: " + sent.oneSecondRate + " count " + sent.count + " five minute rate " + sent.fiveMinuteRate + " <br>";
+                        $('#status').prepend(str);
+                    }
+
+
                 })
             }
         </script>

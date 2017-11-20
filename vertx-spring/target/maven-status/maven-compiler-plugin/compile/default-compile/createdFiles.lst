@@ -1,0 +1,6 @@
+io\project\verticles\GlobalReceiver.class
+io\project\verticles\GlobalSender.class
+io\project\application\MainApplication.class
+io\project\verticles\Sender.class
+io\project\application\AppConfiguration.class
+io\project\verticles\Receiver.class

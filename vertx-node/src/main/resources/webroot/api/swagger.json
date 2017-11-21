@@ -12,7 +12,7 @@
             "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
         }
     },
-    "basePath": "/api",
+    "basePath": "/api/v2",
     "schemes": ["http"],
     "paths": {
         "/health": {

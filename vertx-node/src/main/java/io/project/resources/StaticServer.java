@@ -4,6 +4,7 @@ import io.project.application.AppConfiguration;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.StaticHandler;
@@ -17,6 +18,8 @@ import org.springframework.stereotype.Component;
 import io.vertx.core.http.HttpServer;
 import io.vertx.ext.dropwizard.DropwizardMetricsOptions;
 import io.vertx.ext.dropwizard.MetricsService;
+import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.handler.CorsHandler;
 import java.util.Random;
 import java.util.Set;
 import org.slf4j.Logger;
@@ -24,8 +27,6 @@ import org.slf4j.LoggerFactory;
 
 @Component
 public class StaticServer extends AbstractVerticle {
-
-    private Map<String, JsonObject> products = new HashMap<>();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StaticServer.class);
 
@@ -36,6 +37,16 @@ public class StaticServer extends AbstractVerticle {
     public void start() {
 
         MetricsService service = MetricsService.create(vertx);
+        Router router = Router.router(vertx);
+
+        router.route().handler(BodyHandler.create());
+
+        router.route().handler(CorsHandler.create("*")
+                .allowedMethod(HttpMethod.GET)
+                .allowedHeader("Content-Type"));
+        router.get("/api/v2/health").handler(ctx -> {
+            ctx.response().end("I'm ok, I hope you are also ok" + System.currentTimeMillis());
+        });
 
         BridgeOptions options = new BridgeOptions().
                 addOutboundPermitted(
@@ -56,7 +67,7 @@ public class StaticServer extends AbstractVerticle {
             System.out.println("Known metrics name::::::## " + metricsName);
         });
 
-        Router router = Router.router(vertx);
+        //Router router = Router.router(vertx);
 
         router.route("/eventbus/*").handler(SockJSHandler.create(vertx).bridge(options));
 
@@ -66,13 +77,13 @@ public class StaticServer extends AbstractVerticle {
         httpServer.requestHandler(router::accept).listen(configuration.httpPort());
 
         vertx.setPeriodic(3000, t -> {
-           
+
             JsonObject metrics = service.getMetricsSnapshot(vertx.eventBus());
-            
+
             if (metrics != null) {
-                System.out.println(metrics.toString());
+                // System.out.println(metrics.toString());
                 vertx.eventBus().publish("metrics", metrics);
-            }else{
+            } else {
                 //System.out.println("metrics is null");
             }
         });
